@@ -3,6 +3,5 @@ uploads/
 .env
 dist/
 coverage/
-scripts/github.js
-scripts/github1.js
+github/
 cookies.txt
