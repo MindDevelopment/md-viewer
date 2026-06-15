@@ -1,5 +1,7 @@
 # MD Viewer
 
+![Screenshot](https://raw.githubusercontent.com/MindDevelopment/md-viewer/main/public/logo.png)
+
 A modern Markdown editor with live preview, file management, user authentication, and a visual block-based Markdown builder.
 
 ## Features
