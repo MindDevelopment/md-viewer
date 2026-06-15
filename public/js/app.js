@@ -38,7 +38,7 @@ document.querySelectorAll('.tab').forEach((tab) => {
       builderPanel.classList.toggle('active', target === 'builder');
     } else {
       editorPanel.classList.toggle('hidden-mobile', target !== 'editor');
-      previewPanel.classList.toggle('hidden-mobile', target !== 'preview');
+      previewPanel.classList.toggle('hidden-mobile', target !== 'editor' && target !== 'builder');
       filesPanel.classList.toggle('hidden-mobile', target !== 'files');
       filesPanel.classList.toggle('active', target === 'files');
       builderPanel.classList.toggle('hidden-mobile', target !== 'builder');

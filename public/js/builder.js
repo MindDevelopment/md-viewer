@@ -693,7 +693,7 @@ generateBtn.addEventListener('click', () => {
     setEditorContent(md, 'from-builder.md', null);
     mdInput.dispatchEvent(new Event('input'));
     if (window.innerWidth <= 768) {
-      document.querySelector('.tab[data-tab="preview"]')?.click();
+      document.querySelector('.tab[data-tab="editor"]')?.click();
     }
   }
 });
