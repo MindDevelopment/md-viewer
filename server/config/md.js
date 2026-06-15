@@ -2,7 +2,7 @@ const MarkdownIt = require('markdown-it');
 const hljs = require('highlight.js');
 
 const md = new MarkdownIt({
-  html: true,
+  html: false,
   linkify: true,
   typographer: true,
   highlight(str, lang) {

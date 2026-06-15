@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "${PORT:-3000}:3000"
+      - '${PORT:-3000}:3000'
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -26,9 +26,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - '${DB_PORT:-5432}:5432'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mdviewer}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-mdviewer}']
       interval: 5s
       timeout: 5s
       retries: 5

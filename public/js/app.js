@@ -10,7 +10,7 @@ initAuth();
 initFiles();
 
 setupKeyboardShortcuts({
-  's': () => {
+  s: () => {
     const saveBtn = getEl('save-btn');
     if (saveBtn.style.display !== 'none') saveBtn.click();
   },
@@ -18,9 +18,9 @@ setupKeyboardShortcuts({
 
 setupModal(getEl('save-modal'), getEl('save-modal-close'));
 
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('.tab').forEach((tab) => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
     tab.classList.add('active');
     const target = tab.dataset.tab;
 
@@ -46,7 +46,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     }
 
     if (target === 'builder') {
-      import('./builder.js').then(m => m.parseEditorToBuilder());
+      import('./builder.js').then((m) => m.parseEditorToBuilder());
     }
   });
 });

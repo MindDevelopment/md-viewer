@@ -17,11 +17,11 @@ export async function loadFiles() {
   if (!isAuthenticated()) return;
   try {
     filesList.innerHTML = '<div class="placeholder"><div class="spinner"></div><p>Loading files...</p></div>';
-    const res = await fetch('/api/files');
+    const res = await fetch('/api/v1/files');
     const data = await res.json();
     renderFilesList(data.files);
-  } catch {
-    filesList.innerHTML = '<div class="placeholder"><p>Failed to load files</p></div>';
+  } catch (err) {
+    filesList.innerHTML = `<div class="placeholder"><p>Failed to load files. ${err.message || 'Check your connection'}</p><button class="btn btn-render" onclick="location.reload()">Retry</button></div>`;
   }
 }
 
@@ -30,9 +30,10 @@ function renderFilesList(files) {
     filesList.innerHTML = '<div class="placeholder"><p>No saved files yet</p></div>';
     return;
   }
-  filesList.innerHTML = files.map(f => {
-    const date = new Date(f.updated_at).toLocaleDateString();
-    return `
+  filesList.innerHTML = files
+    .map((f) => {
+      const date = new Date(f.updated_at).toLocaleDateString();
+      return `
       <div class="file-item" data-id="${f.id}">
         <div class="file-item-info" style="flex:1;min-width:0">
           <div class="file-item-title">${escHtml(f.title)}</div>
@@ -43,9 +44,10 @@ function renderFilesList(files) {
           <button class="btn-del" title="Delete">&#128465;</button>
         </div>
       </div>`;
-  }).join('');
+    })
+    .join('');
 
-  filesList.querySelectorAll('.file-item').forEach(item => {
+  filesList.querySelectorAll('.file-item').forEach((item) => {
     const id = parseInt(item.dataset.id);
     item.querySelector('.btn-open').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -60,7 +62,7 @@ function renderFilesList(files) {
 
 async function openFile(id) {
   try {
-    const res = await fetch(`/api/files/${id}`);
+    const res = await fetch(`/api/v1/files/${id}`);
     const data = await res.json();
     if (!res.ok) {
       showToast('Failed to load file', 'error');
@@ -72,22 +74,22 @@ async function openFile(id) {
     if (window.innerWidth <= 768) {
       document.querySelector('.tab[data-tab="editor"]')?.click();
     }
-  } catch {
-    showToast('Failed to load file', 'error');
+  } catch (err) {
+    showToast(err.message || 'Failed to load file', 'error');
   }
 }
 
 async function deleteFile(id) {
   try {
-    await fetch(`/api/files/${id}`, { method: 'DELETE' });
+    await fetch(`/api/v1/files/${id}`, { method: 'DELETE' });
     const state = getEditorState();
     if (state.fileId === id) {
       setCurrentFileId(null);
     }
     await loadFiles();
     showToast('File deleted', 'info');
-  } catch {
-    showToast('Failed to delete file', 'error');
+  } catch (err) {
+    showToast(err.message || 'Failed to delete file', 'error');
   }
 }
 
@@ -106,34 +108,41 @@ export function initFiles() {
     saveErrorEl.textContent = '';
     setLoading(saveSubmit, true);
     const title = saveTitle.value.trim();
-    if (!title) { saveErrorEl.textContent = 'Title is required'; setLoading(saveSubmit, false); return; }
+    if (!title) {
+      saveErrorEl.textContent = 'Title is required';
+      setLoading(saveSubmit, false);
+      return;
+    }
     const state = getEditorState();
     try {
       const body = { title, content: state.text };
       let res;
       if (state.fileId) {
-        res = await fetch(`/api/files/${state.fileId}`, {
+        res = await fetch(`/api/v1/files/${state.fileId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
         });
       } else {
-        res = await fetch('/api/files', {
+        res = await fetch('/api/v1/files', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
         });
       }
       const data = await res.json();
-      if (!res.ok) { saveErrorEl.textContent = data.error; return; }
+      if (!res.ok) {
+        saveErrorEl.textContent = data.error;
+        return;
+      }
       setCurrentFileId(data.file.id);
       setEditorContent(state.text, title, data.file.id);
       saveModal.classList.remove('active');
       saveForm.reset();
       showToast('File saved!', 'success');
       await loadFiles();
-    } catch {
-      saveErrorEl.textContent = 'Failed to save';
+    } catch (err) {
+      saveErrorEl.textContent = err.message || 'Failed to save';
     } finally {
       setLoading(saveSubmit, false);
     }

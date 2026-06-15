@@ -30,7 +30,7 @@ function getCurrentBranch() {
 
 async function askCommitMessage() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     rl.question('Commit message: ', (answer) => {
       rl.close();
       resolve(answer.trim() || 'Auto-sync');
@@ -75,7 +75,7 @@ async function main() {
     const status = run('git status --short');
     console.log(status + '\n');
 
-    const commitMsg = process.argv[2] || await askCommitMessage();
+    const commitMsg = process.argv[2] || (await askCommitMessage());
     console.log(`\nCommit message: "${commitMsg}"`);
 
     run('git add -A');

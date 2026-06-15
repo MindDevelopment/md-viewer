@@ -10,9 +10,18 @@ for (const envVar of requiredEnvVars) {
 
 const app = require('./server/app');
 const logger = require('./server/config/logger');
+const pool = require('./server/config/db');
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  logger.info(`MD Viewer running at http://localhost:${port}`);
-});
+(async () => {
+  const dbOk = await pool.testConnection();
+  if (!dbOk) {
+    logger.error('Exiting due to database connection failure');
+    process.exit(1);
+  }
+
+  app.listen(port, () => {
+    logger.info(`MD Viewer running at http://localhost:${port}`);
+  });
+})();

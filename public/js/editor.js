@@ -75,16 +75,16 @@ const renderMarkdown = debounce(async () => {
   }
 
   try {
-    const res = await fetch('/api/render', {
+    const res = await fetch('/api/v1/render', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text }),
     });
     if (!res.ok) throw new Error('Server error');
     const data = await res.json();
     preview.innerHTML = data.html;
   } catch (err) {
-    preview.innerHTML = `<div class="placeholder"><p style="color:var(--red)">Error: ${err.message}</p></div>`;
+    preview.innerHTML = `<div class="placeholder"><p style="color:var(--red)">Failed to render Markdown. ${err.message}</p></div>`;
   }
 }, 300);
 

@@ -62,7 +62,7 @@ export function updateUserUI() {
 }
 
 async function logout() {
-  await fetch('/api/logout', { method: 'POST' });
+  await fetch('/api/v1/logout', { method: 'POST' });
   currentUser = null;
   setCurrentFileId(null);
   updateUserUI();
@@ -70,7 +70,7 @@ async function logout() {
 
 export async function checkAuth() {
   try {
-    const res = await fetch('/api/me');
+    const res = await fetch('/api/v1/me');
     const data = await res.json();
     if (data.user) {
       currentUser = data.user;
@@ -85,9 +85,9 @@ export async function checkAuth() {
 }
 
 export function initAuth() {
-  modalTabs.forEach(tab => {
+  modalTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
-      modalTabs.forEach(t => t.classList.remove('active'));
+      modalTabs.forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
       loginForm.style.display = tab.dataset.form === 'login' ? '' : 'none';
       registerForm.style.display = tab.dataset.form === 'register' ? '' : 'none';
@@ -105,21 +105,24 @@ export function initAuth() {
     const username = getEl('login-username').value;
     const password = getEl('login-password').value;
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('/api/v1/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
-      if (!res.ok) { loginError.textContent = data.error; return; }
+      if (!res.ok) {
+        loginError.textContent = data.error;
+        return;
+      }
       currentUser = data.user;
       authModal.classList.remove('active');
       loginForm.reset();
       updateUserUI();
       showToast(`Welcome back, ${currentUser.username}!`, 'success');
       await loadFiles();
-    } catch {
-      loginError.textContent = 'Connection error';
+    } catch (err) {
+      loginError.textContent = err.message || 'Connection error';
     } finally {
       setLoading(loginSubmit, false);
     }
@@ -133,21 +136,24 @@ export function initAuth() {
     const email = getEl('register-email').value;
     const password = getEl('register-password').value;
     try {
-      const res = await fetch('/api/register', {
+      const res = await fetch('/api/v1/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password })
+        body: JSON.stringify({ username, email, password }),
       });
       const data = await res.json();
-      if (!res.ok) { registerError.textContent = data.error; return; }
+      if (!res.ok) {
+        registerError.textContent = data.error;
+        return;
+      }
       currentUser = data.user;
       authModal.classList.remove('active');
       registerForm.reset();
       updateUserUI();
       showToast(`Welcome, ${currentUser.username}!`, 'success');
       await loadFiles();
-    } catch {
-      registerError.textContent = 'Connection error';
+    } catch (err) {
+      registerError.textContent = err.message || 'Connection error';
     } finally {
       setLoading(registerSubmit, false);
     }

@@ -84,10 +84,10 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const result = await pool.query(
-      'DELETE FROM md_files WHERE id = $1 AND user_id = $2 RETURNING id',
-      [req.params.id, req.session.userId]
-    );
+    const result = await pool.query('DELETE FROM md_files WHERE id = $1 AND user_id = $2 RETURNING id', [
+      req.params.id,
+      req.session.userId,
+    ]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'File not found' });
     res.json({ ok: true });
   } catch (err) {

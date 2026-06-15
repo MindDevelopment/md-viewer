@@ -11,10 +11,24 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-app.use(helmet({
-  crossOriginResourcePolicy: false,
-  contentSecurityPolicy: false,
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+  })
+);
 
 /* Minimal request logger — much quieter than full pino-http */
 app.use((req, res, next) => {
@@ -39,22 +53,28 @@ app.use((req, res, next) => {
 app.use(express.static(require('path').join(__dirname, '..', 'public')));
 app.use(express.json({ limit: '10mb' }));
 
-app.use(session({
-  store: new pgSession({ pool, createTableIfMissing: true }),
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    sameSite: 'lax',
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-  },
-}));
+app.use(
+  session({
+    store: new pgSession({ pool, createTableIfMissing: true }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    },
+  })
+);
 
-app.use('/api', renderRoutes);
-app.use('/api', authRoutes);
-app.use('/api/files', filesRoutes);
+app.use('/api/v1', renderRoutes);
+app.use('/api/v1', authRoutes);
+app.use('/api/v1/files', filesRoutes);
+
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
 
 app.use(errorHandler);
 

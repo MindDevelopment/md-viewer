@@ -98,7 +98,7 @@ const blockConfig = {
     renderPreview(data) {
       const items = Array.isArray(data.items) ? data.items.filter(Boolean) : [];
       if (items.length === 0) return '<span class="builder-empty-preview">Empty list</span>';
-      return `<ul>${items.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>`;
+      return `<ul>${items.map((i) => `<li>${escHtml(i)}</li>`).join('')}</ul>`;
     },
   },
   'ordered-list': {
@@ -107,7 +107,7 @@ const blockConfig = {
     renderPreview(data) {
       const items = Array.isArray(data.items) ? data.items.filter(Boolean) : [];
       if (items.length === 0) return '<span class="builder-empty-preview">Empty ordered list</span>';
-      return `<ol>${items.map(i => `<li>${escHtml(i)}</li>`).join('')}</ol>`;
+      return `<ol>${items.map((i) => `<li>${escHtml(i)}</li>`).join('')}</ol>`;
     },
   },
   checkbox: {
@@ -115,14 +115,16 @@ const blockConfig = {
     defaultData: { items: [{ text: '', checked: false }] },
     renderPreview(data) {
       const items = Array.isArray(data.items) ? data.items : [];
-      const filtered = items.filter(i => i && (typeof i === 'object' ? i.text : i));
+      const filtered = items.filter((i) => i && (typeof i === 'object' ? i.text : i));
       if (filtered.length === 0) return '<span class="builder-empty-preview">Empty checklist</span>';
-      return `<ul>${items.map(i => {
-        const text = typeof i === 'object' ? i.text : i;
-        const checked = typeof i === 'object' ? i.checked : false;
-        if (!text) return '';
-        return `<li>${checked ? '&#9745;' : '&#9744;'} ${escHtml(text)}</li>`;
-      }).join('')}</ul>`;
+      return `<ul>${items
+        .map((i) => {
+          const text = typeof i === 'object' ? i.text : i;
+          const checked = typeof i === 'object' ? i.checked : false;
+          if (!text) return '';
+          return `<li>${checked ? '&#9745;' : '&#9744;'} ${escHtml(text)}</li>`;
+        })
+        .join('')}</ul>`;
     },
   },
   hr: {
@@ -145,7 +147,7 @@ function renderEditFields(block, index) {
 
   switch (block.type) {
     case 'heading':
-      fields.push(renderSelect('Level', ['1','2','3','4','5','6'], d.level || '2', index, 'level'));
+      fields.push(renderSelect('Level', ['1', '2', '3', '4', '5', '6'], d.level || '2', index, 'level'));
       fields.push(renderInput('Text', d.text || '', index, 'text'));
       break;
     case 'paragraph':
@@ -180,7 +182,9 @@ function renderEditFields(block, index) {
       fields.push(renderListEditor(d.items || [{ text: '', checked: false }], index, 'items', true));
       break;
     case 'hr':
-      fields.push('<div style="color:var(--text-muted);font-size:0.75rem;text-align:center;padding:0.25rem">This block has no settings</div>');
+      fields.push(
+        '<div style="color:var(--text-muted);font-size:0.75rem;text-align:center;padding:0.25rem">This block has no settings</div>'
+      );
       break;
   }
 
@@ -208,7 +212,7 @@ function renderSelect(label, opts, value, index, key) {
     <div class="builder-edit-field">
       <label>${label}</label>
       <select data-idx="${index}" data-key="${key}">
-        ${opts.map(o => `<option value="${o}"${String(value) === o ? ' selected' : ''}>${o}</option>`).join('')}
+        ${opts.map((o) => `<option value="${o}"${String(value) === o ? ' selected' : ''}>${o}</option>`).join('')}
       </select>
     </div>`;
 }
@@ -219,16 +223,18 @@ function renderListEditor(items, index, key, isCheckbox) {
     <div class="builder-edit-field">
       <label>Items</label>
       <div class="builder-list-editor" data-idx="${index}" data-key="${key}" data-check="${isCheckbox ? '1' : '0'}">
-        ${list.map((item, ii) => {
-          const val = isCheckbox ? (typeof item === 'object' ? item.text : item) : item;
-          const checked = isCheckbox && (typeof item === 'object' ? item.checked : false);
-          return `
+        ${list
+          .map((item, ii) => {
+            const val = isCheckbox ? (typeof item === 'object' ? item.text : item) : item;
+            const checked = isCheckbox && (typeof item === 'object' ? item.checked : false);
+            return `
             <div class="builder-list-row">
               ${isCheckbox ? `<input type="checkbox" data-item="${ii}" ${checked ? 'checked' : ''}>` : ''}
               <input type="text" value="${escHtml(String(val))}" data-item="${ii}" placeholder="Item ${ii + 1}">
               <button class="list-del" data-item="${ii}" title="Remove">&times;</button>
             </div>`;
-        }).join('')}
+          })
+          .join('')}
         <button class="builder-list-add" title="Add item">+ Add item</button>
       </div>
     </div>`;
@@ -240,11 +246,12 @@ function renderBlocks() {
   const hasBlocks = _blocks.length > 0;
   builderPlaceholder.style.display = hasBlocks ? 'none' : 'flex';
 
-  builderBlocks.innerHTML = _blocks.map((block, i) => {
-    const config = blockConfig[block.type];
-    if (!config) return '';
-    const previewHtml = config.renderPreview(block.data);
-    return `
+  builderBlocks.innerHTML = _blocks
+    .map((block, i) => {
+      const config = blockConfig[block.type];
+      if (!config) return '';
+      const previewHtml = config.renderPreview(block.data);
+      return `
       <div class="builder-block" data-index="${i}" draggable="false">
         <div class="builder-block-header" draggable="true">
           <div class="builder-drag-handle" title="Drag to reorder">
@@ -266,14 +273,15 @@ function renderBlocks() {
           </div>
         </div>
       </div>`;
-  }).join('');
+    })
+    .join('');
 
   attachBlockEvents();
 }
 
 function attachBlockEvents() {
   /* Preview click → edit mode */
-  builderBlocks.querySelectorAll('.builder-block-preview').forEach(el => {
+  builderBlocks.querySelectorAll('.builder-block-preview').forEach((el) => {
     el.addEventListener('click', () => {
       const block = el.closest('.builder-block');
       block.classList.add('editing');
@@ -282,7 +290,7 @@ function attachBlockEvents() {
   });
 
   /* Done button → back to preview */
-  builderBlocks.querySelectorAll('.builder-block-edit .btn-render').forEach(btn => {
+  builderBlocks.querySelectorAll('.builder-block-edit .btn-render').forEach((btn) => {
     btn.addEventListener('click', () => {
       btn.closest('.builder-block').classList.remove('editing');
       syncEditor();
@@ -290,7 +298,7 @@ function attachBlockEvents() {
   });
 
   /* Delete button */
-  builderBlocks.querySelectorAll('.bdel').forEach(btn => {
+  builderBlocks.querySelectorAll('.bdel').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       removeBlock(parseInt(btn.dataset.i));
@@ -298,7 +306,7 @@ function attachBlockEvents() {
   });
 
   /* Clone button */
-  builderBlocks.querySelectorAll('.bclone').forEach(btn => {
+  builderBlocks.querySelectorAll('.bclone').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const i = parseInt(btn.dataset.i);
@@ -310,22 +318,29 @@ function attachBlockEvents() {
   });
 
   /* Edit field inputs */
-  builderBlocks.querySelectorAll('.builder-edit-field input[type="text"], .builder-edit-field textarea, .builder-edit-field select').forEach(el => {
-    el.addEventListener('input', () => updateBlockField(el));
-    el.addEventListener('change', () => { updateBlockField(el); syncEditor(); });
-  });
+  builderBlocks
+    .querySelectorAll(
+      '.builder-edit-field input[type="text"], .builder-edit-field textarea, .builder-edit-field select'
+    )
+    .forEach((el) => {
+      el.addEventListener('input', () => updateBlockField(el));
+      el.addEventListener('change', () => {
+        updateBlockField(el);
+        syncEditor();
+      });
+    });
 
   /* List editors */
-  builderBlocks.querySelectorAll('.builder-list-editor').forEach(editor => {
+  builderBlocks.querySelectorAll('.builder-list-editor').forEach((editor) => {
     const idx = parseInt(editor.dataset.idx);
     const key = editor.dataset.key;
     const isCheck = editor.dataset.check === '1';
 
-    editor.querySelectorAll('.builder-list-row input[type="text"]').forEach(inp => {
+    editor.querySelectorAll('.builder-list-row input[type="text"]').forEach((inp) => {
       inp.addEventListener('input', () => updateListItem(idx, key, parseInt(inp.dataset.item), inp.value, isCheck));
     });
 
-    editor.querySelectorAll('.builder-list-row input[type="checkbox"]').forEach(cb => {
+    editor.querySelectorAll('.builder-list-row input[type="checkbox"]').forEach((cb) => {
       cb.addEventListener('change', () => {
         const items = _blocks[idx]?.data[key];
         if (Array.isArray(items) && items[parseInt(cb.dataset.item)]) {
@@ -335,7 +350,7 @@ function attachBlockEvents() {
       });
     });
 
-    editor.querySelectorAll('.list-del').forEach(btn => {
+    editor.querySelectorAll('.list-del').forEach((btn) => {
       btn.addEventListener('click', () => {
         const items = _blocks[idx]?.data[key];
         if (Array.isArray(items)) {
@@ -368,7 +383,7 @@ function attachBlockEvents() {
 function setupDragDrop() {
   let dragSrcIndex = null;
 
-  builderBlocks.querySelectorAll('.builder-block-header[draggable="true"]').forEach(header => {
+  builderBlocks.querySelectorAll('.builder-block-header[draggable="true"]').forEach((header) => {
     header.addEventListener('dragstart', (e) => {
       const block = header.closest('.builder-block');
       dragSrcIndex = parseInt(block.dataset.index);
@@ -378,7 +393,7 @@ function setupDragDrop() {
     });
 
     header.addEventListener('dragend', () => {
-      builderBlocks.querySelectorAll('.builder-block').forEach(b => b.classList.remove('dragging', 'drag-over'));
+      builderBlocks.querySelectorAll('.builder-block').forEach((b) => b.classList.remove('dragging', 'drag-over'));
       dragSrcIndex = null;
     });
   });
@@ -392,7 +407,10 @@ function setupDragDrop() {
 
   builderBlocks.addEventListener('dragleave', (e) => {
     const target = e.target.closest('.builder-block');
-    if (target) target.classList.remove('drag-over');
+    if (!target) return;
+    const related = e.relatedTarget;
+    if (related && target.contains(related)) return;
+    target.classList.remove('drag-over');
   });
 
   builderBlocks.addEventListener('drop', (e) => {
@@ -434,7 +452,7 @@ function updateListItem(idx, key, itemIdx, value, isCheck) {
 
 function generateMarkdown() {
   const lines = [];
-  _blocks.forEach(block => {
+  _blocks.forEach((block) => {
     const d = block.data;
     switch (block.type) {
       case 'heading':
@@ -465,17 +483,21 @@ function generateMarkdown() {
         break;
       case 'list': {
         const items = Array.isArray(d.items) ? d.items : [];
-        items.forEach(item => { if (item) lines.push(`- ${item}`); });
+        items.forEach((item) => {
+          if (item) lines.push(`- ${item}`);
+        });
         break;
       }
       case 'ordered-list': {
         const items = Array.isArray(d.items) ? d.items : [];
-        items.forEach((item, i) => { if (item) lines.push(`${i + 1}. ${item}`); });
+        items.forEach((item, i) => {
+          if (item) lines.push(`${i + 1}. ${item}`);
+        });
         break;
       }
       case 'checkbox': {
         const items = Array.isArray(d.items) ? d.items : [];
-        items.forEach(item => {
+        items.forEach((item) => {
           if (!item) return;
           const text = typeof item === 'object' ? item.text : item;
           const checked = typeof item === 'object' ? item.checked : false;
@@ -514,17 +536,22 @@ export function parseEditorToBuilder() {
     const line = lines[i];
     const trimmed = line.trim();
 
-    if (!trimmed) { i++; continue; }
+    if (!trimmed) {
+      i++;
+      continue;
+    }
 
     const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
       parsed.push({ type: 'heading', data: { level: String(heading[1].length), text: heading[2] } });
-      i++; continue;
+      i++;
+      continue;
     }
 
     if (/^---+\s*$/.test(trimmed) || /^\*\*\*+\s*$/.test(trimmed) || /^___+\s*$/.test(trimmed)) {
       parsed.push({ type: 'hr', data: {} });
-      i++; continue;
+      i++;
+      continue;
     }
 
     if (/^>\s/.test(trimmed)) {
@@ -590,25 +617,29 @@ export function parseEditorToBuilder() {
     const img = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (img) {
       parsed.push({ type: 'image', data: { alt: img[1], url: img[2] } });
-      i++; continue;
+      i++;
+      continue;
     }
 
     const link = trimmed.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (link) {
       parsed.push({ type: 'link', data: { text: link[1], url: link[2] } });
-      i++; continue;
+      i++;
+      continue;
     }
 
     const bold = trimmed.match(/^\*\*(.+)\*\*$/);
     if (bold) {
       parsed.push({ type: 'bold', data: { text: bold[1] } });
-      i++; continue;
+      i++;
+      continue;
     }
 
     const italic = trimmed.match(/^\*(.+)\*$/);
     if (italic) {
       parsed.push({ type: 'italic', data: { text: italic[1] } });
-      i++; continue;
+      i++;
+      continue;
     }
 
     parsed.push({ type: 'paragraph', data: { text: trimmed } });
@@ -616,7 +647,7 @@ export function parseEditorToBuilder() {
   }
 
   _blocks.length = 0;
-  parsed.forEach(b => _blocks.push(b));
+  parsed.forEach((b) => _blocks.push(b));
   renderBlocks();
   syncEditor();
 }
@@ -636,7 +667,7 @@ addMenu.addEventListener('click', (e) => {
   e.stopPropagation();
 });
 
-addMenu.querySelectorAll('button').forEach(btn => {
+addMenu.querySelectorAll('button').forEach((btn) => {
   btn.addEventListener('click', () => {
     const type = btn.dataset.type;
     const config = blockConfig[type];

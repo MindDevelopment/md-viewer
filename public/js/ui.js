@@ -73,7 +73,7 @@ export function setupKeyboardShortcuts(handlers) {
 }
 
 export function updateTabUI(tabId) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
   const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
   if (tab) tab.classList.add('active');
 }

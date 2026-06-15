@@ -5,10 +5,10 @@ const sharedRules = {
   'no-console': 'off',
   'prefer-const': 'error',
   'no-var': 'error',
-  'eqeqeq': ['error', 'always'],
+  eqeqeq: ['error', 'always'],
   'no-trailing-spaces': 'error',
-  'semi': ['error', 'always'],
-  'quotes': ['error', 'single', { avoidEscape: true }],
+  semi: ['error', 'always'],
+  quotes: ['error', 'single', { avoidEscape: true }],
 };
 
 export default [
