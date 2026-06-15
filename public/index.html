@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD Viewer</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="logo.png" alt="MD Viewer logo" class="logo">
+        <div>
+          <h1>MD Viewer</h1>
+          <p class="subtitle">Upload a .md file or paste Markdown to see it beautifully rendered</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <button class="btn-theme" id="theme-toggle" title="Toggle theme">&#9790;</button>
+        <div class="header-user" id="header-user"></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="mobile-tabs" id="mobile-tabs">
+    <button class="tab active" data-tab="editor">Editor</button>
+    <button class="tab" data-tab="preview">Preview</button>
+    <button class="tab" data-tab="files" id="files-tab" style="display:none">Files</button>
+    <button class="tab" data-tab="builder" id="builder-tab" style="display:none">Builder</button>
+  </nav>
+
+  <main>
+    <section class="editor-panel" id="editor-panel">
+      <div class="panel-header">
+        <h2>Input</h2>
+        <div class="panel-actions">
+          <label class="btn btn-upload" for="file-input">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload file
+          </label>
+          <input type="file" id="file-input" accept=".md,.markdown,.mdown" hidden>
+          <button class="btn btn-render" id="render-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Render
+          </button>
+        </div>
+      </div>
+      <textarea id="md-input" placeholder="Paste your Markdown here...&#10;&#10;# Hello World&#10;This is **beautifully** rendered Markdown."></textarea>
+      <div class="editor-footer" id="editor-footer">
+        <span id="char-count">0 characters</span>
+        <span id="file-name"></span>
+        <div class="footer-actions" id="footer-actions" style="display:none">
+          <button class="btn btn-save" id="save-btn">Save <span class="kbd">Ctrl+S</span></button>
+          <button class="btn btn-load" id="load-btn">Load</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="preview-panel" id="preview-panel">
+      <div class="panel-header">
+        <h2>Preview</h2>
+      </div>
+      <div class="preview" id="preview">
+        <div class="placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <p>Upload a .md file or type Markdown on the left, then click Render</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="files-panel" id="files-panel" style="display:none">
+      <div class="panel-header">
+        <h2>My Files</h2>
+      </div>
+      <div class="files-list" id="files-list">
+        <div class="placeholder"><p>Loading...</p></div>
+      </div>
+    </section>
+
+    <section class="builder-panel" id="builder-panel" style="display:none">
+      <div class="panel-header">
+        <h2>MD Builder</h2>
+        <button class="btn btn-generate" id="generate-btn">Render</button>
+      </div>
+      <div class="builder-toolbar">
+        <div class="builder-add-wrapper">
+          <button class="builder-add-btn" id="builder-add-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Block
+          </button>
+          <div class="builder-add-menu" id="builder-add-menu">
+            <div class="builder-add-group">
+              <div class="builder-add-group-label">Text</div>
+              <button data-type="heading"><span class="badd-icon">H</span> Heading</button>
+              <button data-type="paragraph"><span class="badd-icon">&#182;</span> Paragraph</button>
+              <button data-type="bold"><span class="badd-icon"><b>B</b></span> Bold</button>
+              <button data-type="italic"><span class="badd-icon"><i>I</i></span> Italic</button>
+              <button data-type="blockquote"><span class="badd-icon">&ldquo;</span> Blockquote</button>
+              <button data-type="hr"><span class="badd-icon">&mdash;</span> Divider</button>
+            </div>
+            <div class="builder-add-group">
+              <div class="builder-add-group-label">Lists</div>
+              <button data-type="list"><span class="badd-icon">&#8226;</span> Unordered List</button>
+              <button data-type="ordered-list"><span class="badd-icon">1.</span> Ordered List</button>
+              <button data-type="checkbox"><span class="badd-icon">&#9744;</span> Checklist</button>
+            </div>
+            <div class="builder-add-group">
+              <div class="builder-add-group-label">Media &amp; Code</div>
+              <button data-type="code"><span class="badd-icon">&lt;/&gt;</span> Code</button>
+              <button data-type="link"><span class="badd-icon">&#128279;</span> Link</button>
+              <button data-type="image"><span class="badd-icon">&#128247;</span> Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="builder-blocks" id="builder-blocks">
+        <div class="placeholder" id="builder-placeholder">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <p>Click <strong>Add Block</strong> to start building your document</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-form="login">Login</button>
+        <button class="modal-tab" data-form="register">Register</button>
+      </div>
+      <form id="login-form" class="auth-form">
+        <h3>Welcome back</h3>
+        <label>Username<input type="text" id="login-username" required autocomplete="username"></label>
+        <label>Password<input type="password" id="login-password" required autocomplete="current-password"></label>
+        <div class="auth-error" id="login-error"></div>
+        <button type="submit" class="btn btn-primary" id="login-submit">Login</button>
+      </form>
+      <form id="register-form" class="auth-form" style="display:none">
+        <h3>Create an account</h3>
+        <label>Username<input type="text" id="register-username" required autocomplete="off"></label>
+        <label>Email<input type="email" id="register-email" required autocomplete="email"></label>
+        <label>Password<input type="password" id="register-password" required autocomplete="new-password"></label>
+        <div class="auth-error" id="register-error"></div>
+        <button type="submit" class="btn btn-primary" id="register-submit">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="save-modal">
+    <div class="modal modal-sm">
+      <button class="modal-close" id="save-modal-close">&times;</button>
+      <h3>Save file</h3>
+      <form id="save-form">
+        <label>Title<input type="text" id="save-title" required placeholder="My markdown file"></label>
+        <div class="save-error" id="save-error"></div>
+        <button type="submit" class="btn btn-primary" id="save-submit">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
